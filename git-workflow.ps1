@@ -25,7 +25,7 @@ function Show-Help {
 }
 
 function Sync-Upstream {
-    Write-Host "🔄 Syncing with upstream..." -ForegroundColor Yellow
+    Write-Host "Syncing with upstream..." -ForegroundColor Yellow
     
     # Fetch latest from upstream
     git fetch upstream
@@ -39,18 +39,18 @@ function Sync-Upstream {
     git checkout develop
     git merge stable
     
-    Write-Host "✅ Upstream sync complete!" -ForegroundColor Green
+    Write-Host "Upstream sync complete!" -ForegroundColor Green
     Write-Host "Your develop branch now has the latest upstream changes." -ForegroundColor Cyan
 }
 
 function New-Feature {
     if ([string]::IsNullOrEmpty($FeatureName)) {
-        Write-Host "❌ Feature name is required for new-feature command" -ForegroundColor Red
+        Write-Host "Feature name is required for new-feature command" -ForegroundColor Red
         Write-Host "Usage: .\git-workflow.ps1 new-feature -FeatureName 'your-feature-name'" -ForegroundColor Yellow
         return
     }
     
-    Write-Host "🚀 Creating new feature branch: $FeatureName" -ForegroundColor Yellow
+    Write-Host "Creating new feature branch: $FeatureName" -ForegroundColor Yellow
     
     # Make sure we're on develop
     git checkout develop
@@ -60,13 +60,13 @@ function New-Feature {
     $branchName = "feature/$FeatureName"
     git checkout -b $branchName
     
-    Write-Host "✅ Feature branch '$branchName' created!" -ForegroundColor Green
+    Write-Host "Feature branch '$branchName' created!" -ForegroundColor Green
     Write-Host "You can now make your changes and commit them." -ForegroundColor Cyan
     Write-Host "When done, run: git push origin $branchName" -ForegroundColor Cyan
 }
 
 function Update-Supabase {
-    Write-Host "📦 Updating Supabase submodule..." -ForegroundColor Yellow
+    Write-Host "Updating Supabase submodule..." -ForegroundColor Yellow
     
     # Update submodule to latest
     git submodule update --remote supabase
@@ -74,8 +74,8 @@ function Update-Supabase {
     # Stage the submodule update
     git add supabase
     
-    Write-Host "✅ Supabase submodule updated!" -ForegroundColor Green
-    Write-Host "Don't forget to commit this change: git commit -m 'chore: update Supabase submodule'" -ForegroundColor Cyan
+    Write-Host "Supabase submodule updated!" -ForegroundColor Green
+    Write-Host "Do not forget to commit this change: git commit -m 'chore: update Supabase submodule'" -ForegroundColor Cyan
 }
 
 switch ($Action) {
