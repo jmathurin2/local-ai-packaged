@@ -5,4 +5,5 @@ neo4j/
 shared-backup/
 .env.test
 searxng/settings.yml
-searxng/uwsgi*
+searxng/uwsgi*\
+supabase/\

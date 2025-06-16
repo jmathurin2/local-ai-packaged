@@ -1,0 +1,9 @@
+My goal is to have my own local ai setup running on my amd rx 9070 xt to work as my personal assistant and in time help me build ai apps. Help me setup local-ai-packaged. i will need to run ollama locally and not in the docker because as the local one is installed a specific way to work with amd gpu, the rest are fine in the docker if you think i need it. below are sources and additional information. help me update the proper keys that i need to in the .env file at that step.
+
+https://github.com/coleam00/local-ai-packaged
+its already cloned to this location on my pc: 
+C:\Users\hatia\OneDrive\Documents\GitHub\local-ai-packaged
+C:\Users\hatia\OneDrive\Documents\GitHub\local-ai-packaged\README.md
+https://www.youtube.com/watch?v=mNcXue7X8H0&t=4445s
+
+let me know if there is any additional information that might help
