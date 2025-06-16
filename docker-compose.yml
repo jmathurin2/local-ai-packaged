@@ -75,7 +75,7 @@ services:
     entrypoint: /bin/sh -c "sleep 3; flowise start"
 
   open-webui:
-    image: ghcr.io/open-webui/open-webui:main
+    image: ghcr.io/open-webui/open-webui:v0.6.15
     restart: unless-stopped
     container_name: open-webui
     expose:
@@ -171,7 +171,7 @@ services:
         max-file: "1"
 
   langfuse-worker:
-    image: langfuse/langfuse-worker:3
+    image: langfuse/langfuse-worker:3.71.0
     restart: always
     depends_on: &langfuse-depends-on
       postgres:
@@ -229,7 +229,7 @@ services:
       REDIS_TLS_KEY: ${REDIS_TLS_KEY:-/certs/redis.key}
 
   langfuse-web:
-    image: langfuse/langfuse:3
+    image: langfuse/langfuse:3.71.0
     restart: always
     depends_on: *langfuse-depends-on
     expose:
