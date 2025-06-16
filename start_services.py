@@ -76,6 +76,41 @@ def start_local_ai(profile=None, environment=None):
         cmd.extend(["-f", "docker-compose.override.public.yml"])
     cmd.extend(["up", "-d"])
     run_command(cmd)
+    
+    # Wait a bit for services to initialize
+    print("Waiting for local AI services to initialize...")
+    time.sleep(5)
+    
+    # Check if critical services are running and restart if needed
+    critical_services = ["n8n", "langfuse-web", "langfuse-worker"]
+    if profile and profile != "none":
+        if profile == "cpu":
+            critical_services.extend(["ollama-cpu", "ollama-pull-llama-cpu"])
+        elif profile == "gpu-nvidia":
+            critical_services.extend(["ollama-gpu", "ollama-pull-llama-gpu"])
+        elif profile == "gpu-amd":
+            critical_services.extend(["ollama-gpu-amd", "ollama-pull-llama-gpu-amd"])
+    
+    print("Verifying critical services are running...")
+    for service in critical_services:
+        try:
+            # Check if service is running
+            check_cmd = ["docker", "compose", "-p", "localai", "ps", "-q", service]
+            result = subprocess.run(check_cmd, capture_output=True, text=True, check=False)
+            if not result.stdout.strip():
+                print(f"Service {service} not running, attempting to start...")
+                restart_cmd = ["docker", "compose", "-p", "localai"]
+                if profile and profile != "none":
+                    restart_cmd.extend(["--profile", profile])
+                restart_cmd.extend(["-f", "docker-compose.yml"])
+                if environment and environment == "private":
+                    restart_cmd.extend(["-f", "docker-compose.override.private.yml"])
+                if environment and environment == "public":
+                    restart_cmd.extend(["-f", "docker-compose.override.public.yml"])
+                restart_cmd.extend(["up", "-d", service])
+                run_command(restart_cmd)
+        except Exception as e:
+            print(f"Warning: Could not verify service {service}: {e}")
 
 def generate_searxng_secret_key():
     """Generate a secret key for SearXNG based on the current platform."""
@@ -219,8 +254,8 @@ def check_and_fix_docker_compose_for_searxng():
 
 def main():
     parser = argparse.ArgumentParser(description='Start the local AI and Supabase services.')
-    parser.add_argument('--profile', choices=['cpu', 'gpu-nvidia', 'gpu-amd', 'none'], default='cpu',
-                      help='Profile to use for Docker Compose (default: cpu)')
+    parser.add_argument('--profile', choices=['cpu', 'gpu-nvidia', 'gpu-amd', 'none'], default='none',
+                      help='Profile to use for Docker Compose (default: none)')
     parser.add_argument('--environment', choices=['private', 'public'], default='private',
                       help='Environment to use for Docker Compose (default: private)')
     args = parser.parse_args()
