@@ -56,12 +56,12 @@ x-init-ollama: &init-ollama
   entrypoint: /bin/sh
   command:
     - "-c"
-    - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:32b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:7b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text"
-    # RTX 5090 optimized models for 32GB VRAM
-    # Primary model: qwen2.5:32b-instruct-q4_K_M (~20GB VRAM, high quality)
-    # Secondary model: qwen2.5:7b-instruct-q4_K_M (~4GB VRAM, fast inference)
-    # Embedding model: nomic-embed-text (~1GB VRAM)
-    # Total: ~25GB VRAM usage with 7GB buffer for context
+    - "echo 'Skipping model download - user will restore from backup'; sleep 1"
+    # Model downloading disabled - user will restore from backup
+    # Available for manual download if needed:
+    # - qwen2.5:32b-instruct-q4_K_M (~20GB VRAM, high quality)
+    # - qwen2.5:7b-instruct-q4_K_M (~4GB VRAM, fast inference)
+    # - nomic-embed-text (~1GB VRAM, embeddings)
 
 services:
   flowise:

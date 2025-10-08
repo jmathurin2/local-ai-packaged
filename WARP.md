@@ -153,10 +153,22 @@ docker-compose -p localai pull
 python start_services.py --profile <your-profile>
 ```
 
-### Data Backup
+### Data Backup & Restoration
 ```bash
 # Backup n8n data
 docker run --rm -v localai_n8n_storage:/data -v $(pwd)/backups:/backup alpine tar czf /backup/n8n_backup_$(date +%Y%m%d).tar.gz -C /data .
+
+# Backup Ollama models
+docker run --rm -v localai_ollama_storage:/data -v $(pwd)/backups:/backup alpine tar czf /backup/ollama_backup_$(date +%Y%m%d).tar.gz -C /data .
+```
+
+### Restore from Backup
+```bash
+# Use the restoration script (recommended)
+python restore_ollama_backup.py
+
+# Manual Ollama volume restore
+docker run --rm -v localai_ollama_storage:/data -v /path/to/backup:/backup alpine tar xzf /backup/ollama_backup.tar.gz -C /data
 ```
 
 ## Common Issues & Solutions

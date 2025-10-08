@@ -153,8 +153,8 @@ python start_services.py --profile gpu-nvidia
 - **85% VRAM utilization** with 7GB buffer for large contexts
 - **Parallel processing** for faster inference
 
-> [!TIP]
-> The RTX 5090 configuration automatically downloads ~25GB of optimized models on first run. This may take 20-40 minutes depending on your internet speed.
+> [!NOTE]
+> The RTX 5090 configuration is optimized for model backup restoration. No automatic downloads occur - restore your existing models from backup for fastest startup.
 
 ### For other Nvidia GPU users
 

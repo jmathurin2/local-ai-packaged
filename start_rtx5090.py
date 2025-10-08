@@ -15,8 +15,8 @@ def main():
     
     print("🚀 Starting Local AI Package with RTX 5090 optimizations...")
     print("📊 Profile: gpu-nvidia")
-    print("🎯 Models: qwen2.5:32b (~20GB), qwen2.5:7b (~4GB), nomic-embed (~1GB)")
-    print("💾 VRAM: Optimized for 32GB RTX 5090 (~25GB used, 7GB buffer)")
+    print("📋 Backup: Ready for model restoration from backup")
+    print("💾 VRAM: Optimized for 32GB RTX 5090 (85% utilization)")
     print()
     
     # Set RTX 5090 optimized environment variables
@@ -52,10 +52,10 @@ def main():
         print("   • Langfuse: http://localhost:3000")
         print("   • Neo4j Browser: http://localhost:7474")
         print()
-        print("🤖 RTX 5090 optimized models will be downloaded automatically")
-        print("   • qwen2.5:32b (high quality, ~20GB VRAM)")
-        print("   • qwen2.5:7b (fast inference, ~4GB VRAM)")
-        print("   Total download: ~25GB (may take 20-40 minutes on first run)")
+        print("📋 Ready for Ollama model backup restoration")
+        print("   • Restore your models from: E:\\docker-backups\\backup_20250930_101628")
+        print("   • No automatic downloads - faster startup!")
+        print("   • RTX 5090 optimized settings ready for your existing models")
         
     except subprocess.CalledProcessError as e:
         print(f"❌ Error starting services: {e}")
