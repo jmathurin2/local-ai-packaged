@@ -15,8 +15,8 @@ def main():
     
     print("🚀 Starting Local AI Package with RTX 5090 optimizations...")
     print("📊 Profile: gpu-nvidia")
-    print("🎯 Models: qwen2.5:32b, qwen2.5:7b, llama3.2:70b")
-    print("💾 VRAM: Configured for 32GB RTX 5090")
+    print("🎯 Models: qwen2.5:32b (~20GB), qwen2.5:7b (~4GB), nomic-embed (~1GB)")
+    print("💾 VRAM: Optimized for 32GB RTX 5090 (~25GB used, 7GB buffer)")
     print()
     
     # Set RTX 5090 optimized environment variables
@@ -53,7 +53,9 @@ def main():
         print("   • Neo4j Browser: http://localhost:7474")
         print()
         print("🤖 RTX 5090 optimized models will be downloaded automatically")
-        print("   This may take some time on first run...")
+        print("   • qwen2.5:32b (high quality, ~20GB VRAM)")
+        print("   • qwen2.5:7b (fast inference, ~4GB VRAM)")
+        print("   Total download: ~25GB (may take 20-40 minutes on first run)")
         
     except subprocess.CalledProcessError as e:
         print(f"❌ Error starting services: {e}")

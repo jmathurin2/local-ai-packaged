@@ -147,13 +147,14 @@ python start_services.py --profile gpu-nvidia
 
 **RTX 5090 Optimizations:**
 - **32K context length** (4x standard) for longer conversations
-- **Multiple large models**: qwen2.5:32b, llama3.2:70b alongside qwen2.5:7b
-- **4 concurrent models** loaded simultaneously 
-- **90% VRAM utilization** of your 32GB VRAM
+- **High-quality 32B model**: qwen2.5:32b (~20GB VRAM) for superior responses
+- **Fast 7B model**: qwen2.5:7b (~4GB VRAM) for quick inference
+- **Smart model switching** between quality and speed as needed
+- **85% VRAM utilization** with 7GB buffer for large contexts
 - **Parallel processing** for faster inference
 
 > [!TIP]
-> The RTX 5090 configuration automatically downloads ~60GB of optimized models on first run. This may take 30-60 minutes depending on your internet speed.
+> The RTX 5090 configuration automatically downloads ~25GB of optimized models on first run. This may take 20-40 minutes depending on your internet speed.
 
 ### For other Nvidia GPU users
 

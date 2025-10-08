@@ -41,9 +41,9 @@ x-ollama: &service-ollama
     - OLLAMA_CONTEXT_LENGTH=32768
     - OLLAMA_FLASH_ATTENTION=1
     - OLLAMA_KV_CACHE_TYPE=q8_0
-    - OLLAMA_MAX_LOADED_MODELS=4
+    - OLLAMA_MAX_LOADED_MODELS=2
     - OLLAMA_NUM_PARALLEL=2
-    - OLLAMA_GPU_MEMORY_FRACTION=0.9
+    - OLLAMA_GPU_MEMORY_FRACTION=0.85
     - CUDA_VISIBLE_DEVICES=0
   volumes:
     - ollama_storage:/root/.ollama
@@ -56,11 +56,12 @@ x-init-ollama: &init-ollama
   entrypoint: /bin/sh
   command:
     - "-c"
-    - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:32b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:7b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text; OLLAMA_HOST=ollama:11434 ollama pull llama3.2:70b-instruct-q4_K_M"
-    # RTX 5090 optimized models - 32B and 70B models fit comfortably in 32GB VRAM
-    # Primary model: qwen2.5:32b-instruct-q4_K_M (better quality, ~20GB VRAM)
-    # Backup model: qwen2.5:7b-instruct-q4_K_M (fast inference, ~4GB VRAM)  
-    # Large model: llama3.2:70b-instruct-q4_K_M (highest quality, ~40GB VRAM - may require model swapping)
+    - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:32b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:7b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text"
+    # RTX 5090 optimized models for 32GB VRAM
+    # Primary model: qwen2.5:32b-instruct-q4_K_M (~20GB VRAM, high quality)
+    # Secondary model: qwen2.5:7b-instruct-q4_K_M (~4GB VRAM, fast inference)
+    # Embedding model: nomic-embed-text (~1GB VRAM)
+    # Total: ~25GB VRAM usage with 7GB buffer for context
 
 services:
   flowise:
