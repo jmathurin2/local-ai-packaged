@@ -133,7 +133,29 @@ Before running the services, you need to set up your environment variables for S
 
 The project includes a `start_services.py` script that handles starting both the Supabase and local AI services. The script accepts a `--profile` flag to specify which GPU configuration to use.
 
-### For Nvidia GPU users
+### For RTX 5090 users (Optimized)
+
+🚀 **NEW**: RTX 5090 optimized configuration with larger models and enhanced performance!
+
+```bash
+# RTX 5090 optimized startup (recommended)
+python start_rtx5090.py
+
+# Or use the standard NVIDIA profile
+python start_services.py --profile gpu-nvidia
+```
+
+**RTX 5090 Optimizations:**
+- **32K context length** (4x standard) for longer conversations
+- **Multiple large models**: qwen2.5:32b, llama3.2:70b alongside qwen2.5:7b
+- **4 concurrent models** loaded simultaneously 
+- **90% VRAM utilization** of your 32GB VRAM
+- **Parallel processing** for faster inference
+
+> [!TIP]
+> The RTX 5090 configuration automatically downloads ~60GB of optimized models on first run. This may take 30-60 minutes depending on your internet speed.
+
+### For other Nvidia GPU users
 
 ```bash
 python start_services.py --profile gpu-nvidia
@@ -307,13 +329,19 @@ To update all containers to their latest versions (n8n, Open WebUI, etc.), run t
 
 ```bash
 # Stop all services
-docker compose -p localai -f docker-compose.yml --profile <your-profile> down
+docker compose -p localai -f docker-compose.yml -f docker-compose.override.private.yml --profile gpu-amd down
+
+docker compose -p localai -f docker-compose.override.private.yml --profile gpu-amd down
 
 # Pull latest versions of all containers
-docker compose -p localai -f docker-compose.yml --profile <your-profile> pull
+docker compose -p localai -f docker-compose.yml -f docker-compose.override.private.yml --profile gpu-amd pull
+docker compose -p localai -f docker-compose.override.private.yml --profile gpu-amd pull
 
 # Start services again with your desired profile
-python start_services.py --profile <your-profile>
+python start_services.py --profile gpu-amd
+docker compose -p localai -f docker-compose.yml -f docker-compose.override.private.yml --profile gpu-amd up -d
+
+gpu-amd
 ```
 
 Replace `<your-profile>` with one of: `cpu`, `gpu-nvidia`, `gpu-amd`, or `none`.
@@ -334,7 +362,7 @@ Here are solutions to common issues you might encounter:
 
 - **Supabase Service Unavailable** - Make sure you don't have an "@" character in your Postgres password! If the connection to the kong container is working (the container logs say it is receiving requests from n8n) but n8n says it cannot connect, this is generally the problem from what the community has shared. Other characters might not be allowed too, the @ symbol is just the one I know for sure!
 
-- **SearXNG Restarting**: If the SearXNG container keeps restarting, run the command "chmod 755 searxng" within the local-ai-packaged folder so SearXNG has the permissions it needs to create the uwsgi.ini file.
+- **Files not Found in Supabase Folder** - If you get any errors around files missing in the supabase/ folder like .env, docker/docker-compose.yml, etc. this most likely means you had a "bad" pull of the Supabase GitHub repository when you ran the start_services.py script. Delete the supabase/ folder within the Local AI Package folder entirely and try again.
 
 - **Files not Found in Supabase Folder** - If you get any errors around files missing in the supabase/ folder like .env, docker/docker-compose.yml, etc. this most likely means you had a "bad" pull of the Supabase GitHub repository when you ran the start_services.py script. Delete the supabase/ folder within the Local AI Package folder entirely and try again.
 

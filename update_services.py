@@ -32,8 +32,8 @@ SERVICE_CONFIGS = {
     "flowise": {
         "github_repo": "FlowiseAI/Flowise",
         "image_name": "flowiseai/flowise",
-        "current_pattern": r"image: flowiseai/flowise:?([\w\.-]*)",
-        "compose_line_pattern": r"(\s+image: flowiseai/flowise):?[\w\.-]*"
+        "current_pattern": r"image: flowiseai/flowise:([\w\.-]+)",
+        "compose_line_pattern": r"(\s+image: flowiseai/flowise:)[\w\.-]+"
     },
     "qdrant": {
         "github_repo": "qdrant/qdrant",
@@ -71,8 +71,12 @@ def get_latest_github_release(repo: str) -> Optional[str]:
         data = response.json()
         tag_name = data.get('tag_name', '')
         
-        # Remove 'v' prefix if present
-        if tag_name.startswith('v'):
+        # Handle specific tag formats
+        if '@' in tag_name:
+            # Handle tags like "n8n@1.110.1" or "flowise@3.0.5"
+            return tag_name.split('@')[1]
+        elif tag_name.startswith('v'):
+            # Remove 'v' prefix if present
             return tag_name[1:]
         return tag_name
         
@@ -129,8 +133,8 @@ def update_service_version(service_name: str, new_version: str) -> bool:
         # Use the compose line pattern for replacement
         pattern = config['compose_line_pattern']
         
-        # Handle special case for services that might not have version tags
-        if service_name in ["flowise", "qdrant"] and new_version != "latest":
+        # Handle special cases for different image naming patterns
+        if service_name in ["qdrant"] and new_version != "latest":
             replacement = rf"\g<1>:{new_version}"
         else:
             replacement = rf"\g<1>{new_version}"

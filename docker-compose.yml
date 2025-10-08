@@ -11,12 +11,13 @@ volumes:
   caddy-config:
   valkey-data:
   langfuse_postgres_data:
+    driver: local
   langfuse_clickhouse_data:
   langfuse_clickhouse_logs:
   langfuse_minio_data:
 
 x-n8n: &service-n8n
-  image: n8nio/n8n:latest
+  image: n8nio/n8n:1.112.6
   environment:
     - DB_TYPE=postgresdb
     - DB_POSTGRESDB_HOST=db
@@ -36,10 +37,14 @@ x-ollama: &service-ollama
   expose:
     - 11434/tcp
   environment:
-    - OLLAMA_CONTEXT_LENGTH=8192
+    # RTX 5090 optimized settings (32GB VRAM)
+    - OLLAMA_CONTEXT_LENGTH=32768
     - OLLAMA_FLASH_ATTENTION=1
     - OLLAMA_KV_CACHE_TYPE=q8_0
-    - OLLAMA_MAX_LOADED_MODELS=2    
+    - OLLAMA_MAX_LOADED_MODELS=4
+    - OLLAMA_NUM_PARALLEL=2
+    - OLLAMA_GPU_MEMORY_FRACTION=0.9
+    - CUDA_VISIBLE_DEVICES=0
   volumes:
     - ollama_storage:/root/.ollama
 
@@ -51,15 +56,15 @@ x-init-ollama: &init-ollama
   entrypoint: /bin/sh
   command:
     - "-c"
-    - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:7b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text"
-    # For a larger context length verison of the model, run these commands:
-    # echo "FROM qwen2.5:7b-instruct-q4_K_M\n\nPARAMETER num_ctx 8096" > Modelfile
-    # ollama create qwen2.5:7b-8k -f ./Modelfile
-    # Change the name of the LLM and num_ctx as you see fit.
+    - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:32b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull qwen2.5:7b-instruct-q4_K_M; OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text; OLLAMA_HOST=ollama:11434 ollama pull llama3.2:70b-instruct-q4_K_M"
+    # RTX 5090 optimized models - 32B and 70B models fit comfortably in 32GB VRAM
+    # Primary model: qwen2.5:32b-instruct-q4_K_M (better quality, ~20GB VRAM)
+    # Backup model: qwen2.5:7b-instruct-q4_K_M (fast inference, ~4GB VRAM)  
+    # Large model: llama3.2:70b-instruct-q4_K_M (highest quality, ~40GB VRAM - may require model swapping)
 
 services:
   flowise:
-    image: flowiseai/flowise
+    image: flowiseai/flowise:3.0.7
     restart: unless-stopped
     container_name: flowise
     expose:
@@ -75,7 +80,7 @@ services:
     entrypoint: /bin/sh -c "sleep 3; flowise start"
 
   open-webui:
-    image: ghcr.io/open-webui/open-webui:v0.6.15
+    image: ghcr.io/open-webui/open-webui:0.6.32
     restart: unless-stopped
     container_name: open-webui
     expose:
@@ -84,6 +89,15 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - open-webui:/app/backend/data
+      # Audio device access for PipeWire/PulseAudio
+      - /run/user/1000/pulse:/run/user/1000/pulse:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    devices:
+      - /dev/snd:/dev/snd
+    environment:
+      # Audio environment variables for PipeWire
+      - PULSE_RUNTIME_PATH=/run/user/1000/pulse
+      - XDG_RUNTIME_DIR=/run/user/1000
 
   n8n-import:
     <<: *service-n8n
@@ -110,7 +124,7 @@ services:
         condition: service_completed_successfully
 
   qdrant:
-    image: qdrant/qdrant
+    image: qdrant/qdrant:latest
     container_name: qdrant
     restart: unless-stopped
     expose:
@@ -120,7 +134,7 @@ services:
       - qdrant_storage:/qdrant/storage
 
   neo4j:
-    image: neo4j:latest
+    image: neo4j:5.21
     volumes:
         - ./neo4j/logs:/logs
         - ./neo4j/config:/config
@@ -148,7 +162,6 @@ services:
       - 80/tcp
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy-addon:/etc/caddy/addons:ro
       - caddy-data:/data:rw
       - caddy-config:/config:rw
     environment:
@@ -172,7 +185,7 @@ services:
         max-file: "1"
 
   langfuse-worker:
-    image: langfuse/langfuse-worker:3.71.0
+    image: langfuse/langfuse-worker:3.112.0
     restart: always
     depends_on: &langfuse-depends-on
       postgres:
@@ -230,7 +243,7 @@ services:
       REDIS_TLS_KEY: ${REDIS_TLS_KEY:-/certs/redis.key}
 
   langfuse-web:
-    image: langfuse/langfuse:3.71.0
+    image: langfuse/langfuse:3.112.0
     restart: always
     depends_on: *langfuse-depends-on
     expose:
